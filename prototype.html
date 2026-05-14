@@ -1,0 +1,1791 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AI智选中转 - 产品原型</title>
+<style>
+/* ========== Design Tokens ========== */
+:root {
+  --primary: #FF8C00;
+  --primary-light: #FFA940;
+  --primary-bg: #FFF7ED;
+  --ai-start: #6366F1;
+  --ai-end: #8B5CF6;
+  --ai-gradient: linear-gradient(135deg, var(--ai-start), var(--ai-end));
+  --ai-light: #EEF2FF;
+  --ai-light2: #F5F3FF;
+  --ai-border: #C7D2FE;
+  --ai-text: #4338CA;
+  --green: #10B981;
+  --green-bg: #ECFDF5;
+  --green-text: #065F46;
+  --red: #EF4444;
+  --blue: #3B82F6;
+  --blue-bg: #EFF6FF;
+  --blue-text: #1E40AF;
+  --text-primary: #1F2937;
+  --text-secondary: #6B7280;
+  --text-tertiary: #9CA3AF;
+  --bg-page: #F5F5F7;
+  --bg-card: #FFFFFF;
+  --border: #E5E7EB;
+  --border-light: #F3F4F6;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+  --shadow-ai: 0 4px 16px rgba(99,102,241,0.18);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 100px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+}
+
+/* ========== Reset & Base ========== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { font-family: var(--font-family); background: #1a1a2e; overflow: hidden; height: 100%; }
+
+/* ========== Phone Frame ========== */
+.phone-frame {
+  position: relative;
+  width: 390px;
+  height: 844px;
+  margin: 20px auto;
+  border-radius: 44px;
+  background: var(--bg-page);
+  overflow: hidden;
+  box-shadow: 0 0 0 10px #1a1a2e, 0 0 0 12px #333, 0 20px 60px rgba(0,0,0,0.5);
+}
+
+/* Status bar */
+.status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 28px 6px;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.status-bar-right { display: flex; gap: 6px; align-items: center; }
+.status-bar-right svg { width: 18px; height: 12px; }
+
+/* ========== Header ========== */
+.header {
+  background: #fff;
+  padding: 0 16px 12px;
+}
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+.back-btn {
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+.route-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.route-arrow { color: var(--text-tertiary); font-size: 12px; }
+.header-actions { display: flex; gap: 4px; }
+
+/* Date Tabs */
+.date-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 8px 0;
+  overflow-x: auto;
+}
+.date-tab {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+.date-tab.active {
+  background: var(--primary);
+  color: #fff;
+  font-weight: 500;
+}
+.date-tab:hover:not(.active) { background: var(--border-light); }
+
+/* Category Tabs */
+.category-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  gap: 0;
+}
+.category-tab {
+  flex: 1;
+  padding: 10px 0;
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  position: relative;
+  transition: var(--transition);
+}
+.category-tab.active {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.category-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 24px; height: 2px;
+  background: var(--primary);
+  border-radius: 1px;
+}
+
+/* Sub Tabs */
+.sub-tabs {
+  display: flex;
+  align-items: center;
+  padding: 10px 0 4px;
+  gap: 16px;
+}
+.sub-tab {
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  position: relative;
+  padding-bottom: 2px;
+}
+.sub-tab.active {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.sub-tab-ai {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--ai-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  cursor: pointer;
+}
+.sub-tab-ai .ai-sparkle {
+  width: 14px; height: 14px;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ========== AI Summary Banner ========== */
+.ai-banner {
+  margin: 10px 16px 0;
+  padding: 8px 12px;
+  background: linear-gradient(135deg, #EEF2FF 0%, #F5F3FF 50%, #FEF3F2 100%);
+  border: 1px solid var(--ai-border);
+  border-radius: var(--radius-md);
+  position: relative;
+  overflow: hidden;
+}
+.ai-banner::before {
+  content: '';
+  position: absolute;
+  top: -20px; right: -20px;
+  width: 80px; height: 80px;
+  background: radial-gradient(circle, rgba(139,92,246,0.12) 0%, transparent 70%);
+}
+.ai-banner-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.ai-banner-right {
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 0;
+  flex-shrink: 0;
+  align-self: stretch;
+}
+.ai-pref-btn {
+  padding: 3px 10px;
+  font-size: 11px;
+  color: var(--ai-text);
+  background: rgba(255,255,255,0.75);
+  border: 1px solid rgba(99,102,241,0.2);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: var(--transition);
+}
+.ai-pref-btn:hover {
+  background: #fff;
+  border-color: var(--ai-start);
+}
+.ai-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  background: var(--ai-gradient);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.3px;
+  flex-shrink: 0;
+}
+.ai-badge svg { width: 10px; height: 10px; }
+.ai-banner-title {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ai-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ai-banner-sub {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 4px;
+  padding-left: 1px;
+}
+.ai-banner-text {
+  font-size: 12.5px;
+  color: #4B5563;
+  line-height: 1.6;
+}
+.ai-banner-text strong {
+  color: var(--ai-text);
+  font-weight: 600;
+}
+.ai-banner-tags {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.ai-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 10px;
+  background: rgba(255,255,255,0.75);
+  border: 1px solid rgba(99,102,241,0.15);
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.ai-tag:hover {
+  background: #fff;
+  border-color: var(--ai-start);
+  color: var(--ai-text);
+}
+.ai-tag.active {
+  background: var(--ai-light);
+  border-color: var(--ai-start);
+  color: var(--ai-text);
+  font-weight: 500;
+}
+
+/* ========== Route Cards ========== */
+.route-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 16px 100px;
+  -webkit-overflow-scrolling: touch;
+}
+.route-list::-webkit-scrollbar { display: none; }
+
+.route-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  margin-bottom: 10px;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: var(--transition);
+  border: 1.5px solid transparent;
+}
+.route-card:hover { box-shadow: var(--shadow-md); }
+.route-card.ai-top {
+  border-color: rgba(99,102,241,0.25);
+  box-shadow: var(--shadow-ai);
+}
+
+/* AI Recommend Header */
+.ai-recommend-strip {
+  display: flex;
+  align-items: center;
+  padding: 4px 12px;
+  background: linear-gradient(90deg, #EEF2FF, #F5F3FF);
+}
+.ai-recommend-left {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.ai-rank {
+  width: 16px; height: 16px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--ai-gradient);
+  color: #fff; font-size: 9px; font-weight: 700; border-radius: 3px;
+}
+.ai-recommend-label {
+  font-size: 11.5px;
+  color: var(--ai-text);
+  font-weight: 500;
+}
+
+/* Route Card Inner */
+.route-card-inner { padding: 10px 12px 8px; }
+
+/* Time Row — matching reference layout */
+.time-row {
+  display: flex;
+  align-items: flex-start;
+}
+.td-depart, .td-arrive {
+  display: flex; flex-direction: column; gap: 1px;
+}
+.td-depart .time, .td-arrive .time {
+  font-size: 19px; font-weight: 700; color: var(--text-primary); line-height: 1.2;
+}
+.td-depart .station, .td-arrive .station {
+  font-size: 11px; color: var(--text-secondary);
+}
+.td-center {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; padding: 0 4px; gap: 0;
+}
+.td-duration {
+  font-size: 10.5px; color: var(--text-tertiary); line-height: 1.4;
+}
+.transfer-vis {
+  display: flex; align-items: center; width: 100%; margin: 2px 0;
+}
+.transfer-seg { flex: 1; height: 1px; background: #D1D5DB; }
+.transfer-dot {
+  padding: 1px 4px; background: transparent; border: none;
+  font-size: 10px; color: var(--text-tertiary);
+  font-weight: 400; white-space: nowrap;
+}
+.td-wait { font-size: 10px; color: var(--text-tertiary); font-weight: 400; }
+.td-price {
+  display: flex; flex-direction: column; align-items: flex-end; margin-left: 6px;
+}
+.td-price .val {
+  font-size: 19px; font-weight: 700; color: var(--primary); line-height: 1.2;
+}
+.td-price .val .cur { font-size: 12px; font-weight: 600; }
+
+/* Train Legs */
+.train-legs {
+  margin-top: 7px; padding-top: 7px;
+  border-top: 1px solid var(--border-light);
+  display: flex; flex-direction: column; gap: 2px;
+}
+.train-leg {
+  display: flex; align-items: center; font-size: 11px; color: var(--text-secondary);
+}
+.leg-n { color: var(--text-tertiary); font-size: 10px; width: 22px; flex-shrink: 0; }
+.leg-train { font-weight: 500; color: var(--text-primary); width: 48px; flex-shrink: 0; }
+.leg-seats { display: flex; gap: 6px; flex: 1; }
+.seat { font-size: 10.5px; color: var(--text-secondary); }
+.seat em { font-style: normal; color: var(--blue); font-weight: 500; }
+.seat em.grab { color: #C0C0C0; font-weight: 400; }
+
+/* AI Reason — compact single line */
+.ai-reason-line {
+  padding: 6px 12px 8px;
+  border-top: 1px dashed rgba(99,102,241,0.1);
+  display: flex; align-items: center; gap: 4px;
+  font-size: 11.5px; color: var(--text-secondary); line-height: 1.5;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ai-reason-line svg { flex-shrink: 0; width: 12px; height: 12px; }
+.ai-reason-line .hl { color: var(--ai-text); font-weight: 600; }
+.ai-reason-line .warn { color: #DC2626; font-weight: 500; }
+
+/* Section Divider */
+.section-divider {
+  display: flex; align-items: center; gap: 10px;
+  margin: 6px 0 8px; padding: 0;
+}
+.section-divider-line { flex: 1; height: 1px; background: var(--border); }
+.section-divider-text {
+  font-size: 11.5px; color: var(--text-tertiary); white-space: nowrap;
+}
+
+/* ========== Bottom AI Input ========== */
+.ai-input-bar {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 8px 16px;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom, 20px));
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border-light);
+  z-index: 100;
+  transition: var(--transition);
+}
+.ai-input-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 6px 6px 14px;
+  background: var(--bg-page);
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--border);
+  transition: var(--transition);
+}
+.ai-input-container:focus-within {
+  border-color: var(--ai-start);
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+  background: #fff;
+}
+.ai-input-icon {
+  width: 20px; height: 20px;
+  flex-shrink: 0;
+}
+.ai-input-field {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 13.5px;
+  color: var(--text-primary);
+  background: transparent;
+  font-family: var(--font-family);
+}
+.ai-input-field::placeholder {
+  color: var(--text-tertiary);
+}
+.ai-send-btn {
+  width: 32px; height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ai-gradient);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: var(--transition);
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+.ai-send-btn.active {
+  opacity: 1;
+  transform: scale(1);
+}
+.ai-send-btn:hover { transform: scale(1.05); }
+.ai-voice-btn {
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent; border: none; cursor: pointer;
+  color: var(--text-tertiary); flex-shrink: 0;
+  transition: var(--transition); border-radius: 50%;
+}
+.ai-voice-btn:hover { color: var(--ai-start); background: var(--ai-light); }
+.ai-voice-btn:active { color: #fff; background: var(--ai-gradient); }
+.chat-voice-btn {
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent; border: 1.5px solid var(--border);
+  cursor: pointer; color: var(--text-tertiary); flex-shrink: 0;
+  transition: var(--transition); border-radius: 50%;
+}
+.chat-voice-btn:hover { color: var(--ai-start); border-color: var(--ai-start); }
+.chat-voice-btn:active { color: #fff; background: var(--ai-gradient); border-color: var(--ai-start); }
+.voice-toast {
+  position: absolute; bottom: 120px; left: 50%;
+  transform: translateX(-50%); padding: 10px 24px;
+  background: rgba(0,0,0,0.8); color: #fff; font-size: 14px;
+  border-radius: var(--radius-md); z-index: 310;
+  display: none; align-items: center; gap: 8px;
+}
+.voice-toast.show { display: flex; }
+.voice-wave { display: flex; gap: 2px; align-items: center; height: 18px; }
+.voice-wave span {
+  width: 3px; background: #fff; border-radius: 2px;
+  animation: voiceWave 0.6s ease-in-out infinite alternate;
+}
+.voice-wave span:nth-child(1) { height: 6px; animation-delay: 0s; }
+.voice-wave span:nth-child(2) { height: 12px; animation-delay: 0.1s; }
+.voice-wave span:nth-child(3) { height: 18px; animation-delay: 0.2s; }
+.voice-wave span:nth-child(4) { height: 12px; animation-delay: 0.3s; }
+.voice-wave span:nth-child(5) { height: 6px; animation-delay: 0.4s; }
+@keyframes voiceWave {
+  from { height: 4px; }
+  to { height: 18px; }
+}
+
+/* Quick suggestions above input */
+.ai-quick-actions {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+.ai-quick-actions::-webkit-scrollbar { display: none; }
+.ai-quick-btn {
+  flex-shrink: 0;
+  padding: 5px 12px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+.ai-quick-btn:hover {
+  border-color: var(--ai-start);
+  color: var(--ai-text);
+  background: var(--ai-light);
+}
+
+/* ========== AI Chat Panel (Overlay) ========== */
+.chat-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.chat-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+.chat-panel {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  max-height: 70%;
+  background: #fff;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  transform: translateY(100%);
+  transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+  display: flex;
+  flex-direction: column;
+  z-index: 201;
+}
+.chat-overlay.open .chat-panel {
+  transform: translateY(0);
+}
+.chat-handle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 0 6px;
+}
+.chat-handle-bar {
+  width: 36px;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+}
+.chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 20px 12px;
+  border-bottom: 1px solid var(--border-light);
+}
+.chat-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.chat-ai-avatar {
+  width: 28px; height: 28px;
+  background: var(--ai-gradient);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.chat-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.chat-close {
+  width: 28px; height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-tertiary);
+  border-radius: 50%;
+  transition: var(--transition);
+}
+.chat-close:hover { background: var(--border-light); color: var(--text-primary); }
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.chat-messages::-webkit-scrollbar { display: none; }
+
+.chat-msg {
+  max-width: 85%;
+  animation: msgIn 0.35s ease;
+}
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.chat-msg.ai {
+  align-self: flex-start;
+}
+.chat-msg.user {
+  align-self: flex-end;
+}
+.chat-msg-bubble {
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+.chat-msg.ai .chat-msg-bubble {
+  background: var(--bg-page);
+  color: var(--text-primary);
+  border-bottom-left-radius: 4px;
+}
+.chat-msg.user .chat-msg-bubble {
+  background: var(--ai-gradient);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+.chat-msg-label {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-bottom: 4px;
+}
+.chat-msg.user .chat-msg-label { text-align: right; }
+
+/* AI typing indicator */
+.typing-indicator {
+  display: flex;
+  gap: 4px;
+  padding: 10px 14px;
+  background: var(--bg-page);
+  border-radius: var(--radius-md);
+  border-bottom-left-radius: 4px;
+  width: fit-content;
+}
+.typing-dot {
+  width: 6px; height: 6px;
+  background: var(--text-tertiary);
+  border-radius: 50%;
+  animation: typing 1.4s infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typing {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
+
+/* Chat input */
+.chat-input-area {
+  padding: 12px 20px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 20px));
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.chat-input-field {
+  flex: 1;
+  padding: 10px 14px;
+  background: var(--bg-page);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-full);
+  font-size: 14px;
+  outline: none;
+  font-family: var(--font-family);
+  color: var(--text-primary);
+  transition: var(--transition);
+}
+.chat-input-field:focus {
+  border-color: var(--ai-start);
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+}
+.chat-send-btn {
+  width: 36px; height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ai-gradient);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+.chat-send-btn:hover { transform: scale(1.08); }
+
+/* Suggestion chips in chat */
+.chat-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.chat-suggestion-chip {
+  padding: 5px 12px;
+  background: #fff;
+  border: 1px solid var(--ai-border);
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  color: var(--ai-text);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.chat-suggestion-chip:hover {
+  background: var(--ai-light);
+  border-color: var(--ai-start);
+}
+
+/* AI result card in chat */
+.chat-result-card {
+  background: #fff;
+  border: 1px solid var(--ai-border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  margin-top: 8px;
+}
+.chat-result-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.chat-result-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ai-text);
+}
+.chat-result-price {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--primary);
+}
+.chat-result-route {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.chat-result-btn {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 7px 0;
+  background: var(--ai-gradient);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+  transition: var(--transition);
+}
+.chat-result-btn:hover { opacity: 0.9; }
+
+/* ========== Scroll Area ========== */
+.scroll-area {
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 0px);
+  overflow: hidden;
+}
+.scroll-content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.scroll-content::-webkit-scrollbar { display: none; }
+
+/* ========== Animations ========== */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.ai-shimmer {
+  background: linear-gradient(90deg, transparent 25%, rgba(99,102,241,0.08) 50%, transparent 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-in-up {
+  animation: fadeInUp 0.5s ease forwards;
+}
+.delay-1 { animation-delay: 0.1s; opacity: 0; }
+.delay-2 { animation-delay: 0.2s; opacity: 0; }
+.delay-3 { animation-delay: 0.3s; opacity: 0; }
+.delay-4 { animation-delay: 0.4s; opacity: 0; }
+.delay-5 { animation-delay: 0.5s; opacity: 0; }
+
+/* Updated result highlighting */
+.route-card.highlight-update {
+  animation: highlightPulse 0.6s ease;
+}
+@keyframes highlightPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.01); box-shadow: 0 0 0 3px rgba(99,102,241,0.2); }
+  100% { transform: scale(1); }
+}
+
+/* List update animations */
+.route-card.card-fade-out {
+  opacity: 0; transform: translateY(-8px) scale(0.98);
+  transition: all 0.3s ease;
+}
+.route-card.card-fade-in {
+  animation: cardSlideIn 0.4s ease forwards;
+}
+@keyframes cardSlideIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.route-card.card-highlight-new {
+  animation: newCardPulse 0.8s ease;
+}
+@keyframes newCardPulse {
+  0% { box-shadow: 0 0 0 0 rgba(99,102,241,0.3); }
+  50% { box-shadow: 0 0 0 4px rgba(99,102,241,0.15); }
+  100% { box-shadow: var(--shadow-sm); }
+}
+
+/* Loading overlay on list */
+.list-loading-overlay {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(255,255,255,0.7); backdrop-filter: blur(2px);
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 10px; z-index: 50;
+  opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+}
+.list-loading-overlay.show { opacity: 1; pointer-events: auto; }
+.loading-spinner {
+  width: 28px; height: 28px; border: 3px solid var(--border);
+  border-top-color: var(--ai-start); border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text {
+  font-size: 13px; color: var(--ai-text); font-weight: 500;
+}
+
+/* "New Recommend" flash */
+.new-badge {
+  display: inline-flex;
+  padding: 1px 6px;
+  background: var(--red);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  margin-left: 4px;
+  animation: badgePulse 1s ease-in-out 3;
+}
+@keyframes badgePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* Layout helper */
+.content-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* ========== Toast ========== */
+.toast {
+  position: absolute;
+  top: 60px; left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  padding: 8px 20px;
+  background: rgba(0,0,0,0.75);
+  color: #fff;
+  font-size: 13px;
+  border-radius: var(--radius-full);
+  z-index: 300;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+</style>
+</head>
+<body>
+<div class="phone-frame" id="app">
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span>14:12</span>
+    <div class="status-bar-right">
+      <svg viewBox="0 0 18 12"><path d="M1 8h2v3H1zM5 5h2v6H5zM9 2h2v9H9zM13 0h2v11h-2z" fill="currentColor" opacity="0.8"/></svg>
+      <svg viewBox="0 0 25 12"><rect x="0" y="1" width="21" height="10" rx="2" stroke="currentColor" stroke-width="1" fill="none"/><rect x="22" y="4" width="2" height="4" rx="0.5" fill="currentColor" opacity="0.4"/><rect x="1.5" y="2.5" width="15" height="7" rx="1" fill="#4ADE80"/></svg>
+    </div>
+  </div>
+
+  <div class="content-wrapper">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-top">
+        <div class="back-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        </div>
+        <div class="route-info">
+          <span>天津市</span>
+          <span class="route-arrow">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </span>
+          <span>西安市</span>
+        </div>
+        <div class="header-actions" style="width:32px"></div>
+      </div>
+
+      <div class="date-tabs">
+        <div class="date-tab">04/29</div>
+        <div class="date-tab">04/30</div>
+        <div class="date-tab active">05/01</div>
+        <div class="date-tab">05/02</div>
+        <div class="date-tab">05/03</div>
+      </div>
+
+      <div class="category-tabs">
+        <div class="category-tab">火车票</div>
+        <div class="category-tab active">智能中转</div>
+        <div class="category-tab">飞机+火车</div>
+      </div>
+    </div>
+
+    <!-- Scrollable Content -->
+    <div class="scroll-content" id="scrollContent" style="position:relative;">
+      <!-- AI Summary Banner -->
+      <div class="ai-banner fade-in-up delay-1" id="aiBanner">
+        <div class="ai-banner-header">
+          <div style="display:flex;flex-direction:column;gap:3px;min-width:0;">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span class="ai-badge">
+                <svg viewBox="0 0 16 16" fill="none"><path d="M8 0L9.5 5.5L16 8L9.5 10.5L8 16L6.5 10.5L0 8L6.5 5.5L8 0Z" fill="#fff"/></svg>
+                AI 精选
+              </span>
+              <span class="ai-banner-title">已为您精选 4 个最优方案</span>
+            </div>
+            <div class="ai-banner-sub">五一假期首日出行，已优选换乘舒适的方案</div>
+          </div>
+          <div class="ai-banner-right">
+            <span class="ai-pref-btn" onclick="openChat()">调整偏好</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Route Cards -->
+      <div class="route-list" id="routeList">
+
+        <!-- Card 1: AI Top Pick -->
+        <div class="route-card ai-top fade-in-up delay-2" id="card1">
+          <div class="route-card-inner">
+            <div class="time-row">
+              <div class="td-depart">
+                <span class="time">07:05</span>
+                <span class="station">天津西</span>
+              </div>
+              <div class="td-center">
+                <span class="td-duration">共5小时</span>
+                <div class="transfer-vis">
+                  <span class="transfer-seg"></span>
+                  <span class="transfer-dot">石家庄</span>
+                  <span class="transfer-seg"></span>
+                </div>
+                <span class="td-wait">换乘35分</span>
+              </div>
+              <div class="td-arrive">
+                <span class="time">12:05</span>
+                <span class="station">西安北</span>
+              </div>
+              <div class="td-price">
+                <span class="val"><span class="cur">¥</span>468</span>
+              </div>
+            </div>
+            <div class="train-legs">
+              <div class="train-leg">
+                <span class="leg-n">1程</span>
+                <span class="leg-train">G1701</span>
+                <div class="leg-seats">
+                  <span class="seat">二等座 <em>12张</em></span>
+                  <span class="seat">一等座 <em>5张</em></span>
+                  <span class="seat">商务座 <em>2张</em></span>
+                </div>
+              </div>
+              <div class="train-leg">
+                <span class="leg-n">2程</span>
+                <span class="leg-train">G671</span>
+                <div class="leg-seats">
+                  <span class="seat">二等座 <em>18张</em></span>
+                  <span class="seat">一等座 <em>6张</em></span>
+                  <span class="seat">商务座 <em class="grab">抢</em></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ai-reason-line">
+            <span class="ai-rank">1</span>
+            <span><span class="hl">AI首选 · 综合最优</span> — 中午能到，全程5小时换乘轻松</span>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="route-card fade-in-up delay-3" id="card2">
+          <div class="route-card-inner">
+            <div class="time-row">
+              <div class="td-depart">
+                <span class="time">19:30</span>
+                <span class="station">天津西</span>
+              </div>
+              <div class="td-center">
+                <span class="td-duration">共11小时45分</span>
+                <div class="transfer-vis">
+                  <span class="transfer-seg"></span>
+                  <span class="transfer-dot">北京西</span>
+                  <span class="transfer-seg"></span>
+                </div>
+                <span class="td-wait">换乘50分</span>
+              </div>
+              <div class="td-arrive">
+                <span class="time"><span style="font-size:11px;font-weight:500;color:var(--text-tertiary);">次日</span>07:15</span>
+                <span class="station">西安北</span>
+              </div>
+              <div class="td-price">
+                <span class="val"><span class="cur">¥</span>520</span>
+              </div>
+            </div>
+            <div class="train-legs">
+              <div class="train-leg">
+                <span class="leg-n">1程</span>
+                <span class="leg-train">G8920</span>
+                <div class="leg-seats">
+                  <span class="seat">二等座 <em>20张</em></span>
+                  <span class="seat">一等座 <em>8张</em></span>
+                  <span class="seat">商务座 <em>3张</em></span>
+                </div>
+              </div>
+              <div class="train-leg">
+                <span class="leg-n">2程</span>
+                <span class="leg-train">D939</span>
+                <div class="leg-seats">
+                  <span class="seat">二等卧 <em>16张</em></span>
+                  <span class="seat">一等卧 <em class="grab">抢</em></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ai-reason-line">
+            <span class="ai-rank" style="background: linear-gradient(135deg, #10B981, #34D399);">2</span>
+            <span><span class="hl" style="color:#065F46;">动卧过夜优选</span> — 动卧过夜更舒适，睡醒到西安</span>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="route-card fade-in-up delay-4" id="card3">
+          <div class="route-card-inner">
+            <div class="time-row">
+              <div class="td-depart">
+                <span class="time">08:45</span>
+                <span class="station">天津</span>
+              </div>
+              <div class="td-center">
+                <span class="td-duration">共5小时37分</span>
+                <div class="transfer-vis">
+                  <span class="transfer-seg"></span>
+                  <span class="transfer-dot">郑州东</span>
+                  <span class="transfer-seg"></span>
+                </div>
+                <span class="td-wait">换乘28分</span>
+              </div>
+              <div class="td-arrive">
+                <span class="time">14:22</span>
+                <span class="station">西安北</span>
+              </div>
+              <div class="td-price">
+                <span class="val"><span class="cur">¥</span>512</span>
+              </div>
+            </div>
+            <div class="train-legs">
+              <div class="train-leg">
+                <span class="leg-n">1程</span>
+                <span class="leg-train">G1291</span>
+                <div class="leg-seats">
+                  <span class="seat">二等座 <em>15张</em></span>
+                  <span class="seat">一等座 <em>4张</em></span>
+                  <span class="seat">商务座 <em>1张</em></span>
+                </div>
+              </div>
+              <div class="train-leg">
+                <span class="leg-n">2程</span>
+                <span class="leg-train">G2201</span>
+                <div class="leg-seats">
+                  <span class="seat">二等座 <em>10张</em></span>
+                  <span class="seat">一等座 <em>3张</em></span>
+                  <span class="seat">商务座 <em class="grab">抢</em></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ai-reason-line">
+            <span class="ai-rank" style="background: linear-gradient(135deg, #F59E0B, #FBBF24);">3</span>
+            <span><span class="hl" style="color:#92400E;">时间价格均衡</span> — 时间适中，下午到西安还能逛</span>
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="route-card fade-in-up delay-5" id="card4">
+          <div class="route-card-inner">
+            <div class="time-row">
+              <div class="td-depart">
+                <span class="time">06:50</span>
+                <span class="station">天津西</span>
+              </div>
+              <div class="td-center">
+                <span class="td-duration">共6小时18分</span>
+                <div class="transfer-vis">
+                  <span class="transfer-seg"></span>
+                  <span class="transfer-dot">太原南</span>
+                  <span class="transfer-seg"></span>
+                </div>
+                <span class="td-wait">换乘42分</span>
+              </div>
+              <div class="td-arrive">
+                <span class="time">13:08</span>
+                <span class="station">西安北</span>
+              </div>
+              <div class="td-price">
+                <span class="val"><span class="cur">¥</span>398</span>
+              </div>
+            </div>
+            <div class="train-legs">
+              <div class="train-leg">
+                <span class="leg-n">1程</span>
+                <span class="leg-train">D1636</span>
+                <div class="leg-seats">
+                  <span class="seat">二等座 <em>22张</em></span>
+                  <span class="seat">一等座 <em>10张</em></span>
+                  <span class="seat">商务座 <em>4张</em></span>
+                </div>
+              </div>
+              <div class="train-leg">
+                <span class="leg-n">2程</span>
+                <span class="leg-train">D2507</span>
+                <div class="leg-seats">
+                  <span class="seat">二等座 <em>18张</em></span>
+                  <span class="seat">一等座 <em>7张</em></span>
+                  <span class="seat">商务座 <em>2张</em></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ai-reason-line">
+            <span class="ai-rank" style="background: linear-gradient(135deg, #3B82F6, #60A5FA);">4</span>
+            <span><span class="hl" style="color:#1E40AF;">经济之选</span> — 价格最低，换乘42分钟宽裕不赶</span>
+          </div>
+        </div>
+
+        <!-- Section Divider -->
+        <div class="section-divider">
+          <span class="section-divider-line"></span>
+          <span class="section-divider-text">其他 4 个中转方案</span>
+          <span class="section-divider-line"></span>
+        </div>
+
+        <!-- Card 5: Regular -->
+        <div class="route-card" id="card5">
+          <div class="route-card-inner">
+            <div class="time-row">
+              <div class="td-depart">
+                <span class="time">10:20</span>
+                <span class="station">天津西</span>
+              </div>
+              <div class="td-center">
+                <span class="td-duration">共6小时25分</span>
+                <div class="transfer-vis">
+                  <span class="transfer-seg"></span>
+                  <span class="transfer-dot">石家庄</span>
+                  <span class="transfer-seg"></span>
+                </div>
+                <span class="td-wait">换乘30分</span>
+              </div>
+              <div class="td-arrive">
+                <span class="time">16:45</span>
+                <span class="station">西安北</span>
+              </div>
+              <div class="td-price">
+                <span class="val"><span class="cur">¥</span>485</span>
+              </div>
+            </div>
+            <div class="train-legs">
+              <div class="train-leg">
+                <span class="leg-n">1程</span>
+                <span class="leg-train">G1711</span>
+                <div class="leg-seats">
+                  <span class="seat">二等座 <em>14张</em></span>
+                  <span class="seat">一等座 <em>6张</em></span>
+                  <span class="seat">商务座 <em>2张</em></span>
+                </div>
+              </div>
+              <div class="train-leg">
+                <span class="leg-n">2程</span>
+                <span class="leg-train">G657</span>
+                <div class="leg-seats">
+                  <span class="seat">二等座 <em>16张</em></span>
+                  <span class="seat">一等座 <em>5张</em></span>
+                  <span class="seat">商务座 <em class="grab">抢</em></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 6: Regular -->
+        <div class="route-card" id="card6">
+          <div class="route-card-inner">
+            <div class="time-row">
+              <div class="td-depart">
+                <span class="time">12:15</span>
+                <span class="station">天津</span>
+              </div>
+              <div class="td-center">
+                <span class="td-duration">共6小时15分</span>
+                <div class="transfer-vis">
+                  <span class="transfer-seg"></span>
+                  <span class="transfer-dot">郑州东</span>
+                  <span class="transfer-seg"></span>
+                </div>
+                <span class="td-wait">换乘38分</span>
+              </div>
+              <div class="td-arrive">
+                <span class="time">18:30</span>
+                <span class="station">西安北</span>
+              </div>
+              <div class="td-price">
+                <span class="val"><span class="cur">¥</span>528</span>
+              </div>
+            </div>
+            <div class="train-legs">
+              <div class="train-leg">
+                <span class="leg-n">1程</span>
+                <span class="leg-train">G1293</span>
+                <div class="leg-seats">
+                  <span class="seat">二等座 <em>20张</em></span>
+                  <span class="seat">一等座 <em>8张</em></span>
+                  <span class="seat">商务座 <em>3张</em></span>
+                </div>
+              </div>
+              <div class="train-leg">
+                <span class="leg-n">2程</span>
+                <span class="leg-train">G2203</span>
+                <div class="leg-seats">
+                  <span class="seat">二等座 <em>12张</em></span>
+                  <span class="seat">一等座 <em>4张</em></span>
+                  <span class="seat">商务座 <em class="grab">抢</em></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 7: Regular -->
+        <div class="route-card" id="card7">
+          <div class="route-card-inner">
+            <div class="time-row">
+              <div class="td-depart">
+                <span class="time">14:00</span>
+                <span class="station">天津西</span>
+              </div>
+              <div class="td-center">
+                <span class="td-duration">共6小时18分</span>
+                <div class="transfer-vis">
+                  <span class="transfer-seg"></span>
+                  <span class="transfer-dot">太原南</span>
+                  <span class="transfer-seg"></span>
+                </div>
+                <span class="td-wait">换乘35分</span>
+              </div>
+              <div class="td-arrive">
+                <span class="time">20:18</span>
+                <span class="station">西安北</span>
+              </div>
+              <div class="td-price">
+                <span class="val"><span class="cur">¥</span>445</span>
+              </div>
+            </div>
+            <div class="train-legs">
+              <div class="train-leg">
+                <span class="leg-n">1程</span>
+                <span class="leg-train">D1638</span>
+                <div class="leg-seats">
+                  <span class="seat">二等座 <em>16张</em></span>
+                  <span class="seat">一等座 <em>7张</em></span>
+                  <span class="seat">商务座 <em>2张</em></span>
+                </div>
+              </div>
+              <div class="train-leg">
+                <span class="leg-n">2程</span>
+                <span class="leg-train">D2509</span>
+                <div class="leg-seats">
+                  <span class="seat">二等座 <em>14张</em></span>
+                  <span class="seat">一等座 <em>5张</em></span>
+                  <span class="seat">商务座 <em class="grab">抢</em></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 8: Regular -->
+        <div class="route-card" id="card8">
+          <div class="route-card-inner">
+            <div class="time-row">
+              <div class="td-depart">
+                <span class="time">16:30</span>
+                <span class="station">天津西</span>
+              </div>
+              <div class="td-center">
+                <span class="td-duration">共6小时20分</span>
+                <div class="transfer-vis">
+                  <span class="transfer-seg"></span>
+                  <span class="transfer-dot">石家庄</span>
+                  <span class="transfer-seg"></span>
+                </div>
+                <span class="td-wait">换乘25分</span>
+              </div>
+              <div class="td-arrive">
+                <span class="time">22:50</span>
+                <span class="station">西安北</span>
+              </div>
+              <div class="td-price">
+                <span class="val"><span class="cur">¥</span>475</span>
+              </div>
+            </div>
+            <div class="train-legs">
+              <div class="train-leg">
+                <span class="leg-n">1程</span>
+                <span class="leg-train">G1715</span>
+                <div class="leg-seats">
+                  <span class="seat">二等座 <em>10张</em></span>
+                  <span class="seat">一等座 <em>4张</em></span>
+                  <span class="seat">商务座 <em class="grab">抢</em></span>
+                </div>
+              </div>
+              <div class="train-leg">
+                <span class="leg-n">2程</span>
+                <span class="leg-train">G659</span>
+                <div class="leg-seats">
+                  <span class="seat">二等座 <em>8张</em></span>
+                  <span class="seat">一等座 <em>3张</em></span>
+                  <span class="seat">商务座 <em class="grab">抢</em></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end route-list -->
+      <!-- Loading overlay -->
+      <div class="list-loading-overlay" id="listLoading">
+        <div class="loading-spinner"></div>
+        <span class="loading-text">AI 正在根据偏好重新排序...</span>
+      </div>
+    </div><!-- end scroll-content -->
+    <div class="ai-input-bar" id="aiInputBar">
+      <div class="ai-quick-actions" id="quickActions">
+        <span class="ai-quick-btn" onclick="quickAsk('早上出发的方案')">早上出发</span>
+        <span class="ai-quick-btn" onclick="quickAsk('动卧过夜的方案')">动卧过夜</span>
+        <span class="ai-quick-btn" onclick="quickAsk('换乘时间要充裕')">换乘宽裕</span>
+        <span class="ai-quick-btn" onclick="quickAsk('我想下午到达')">下午到达</span>
+        <span class="ai-quick-btn" onclick="quickAsk('想省酒店钱')">省酒店钱</span>
+      </div>
+      <div class="ai-input-container" onclick="openChat()">
+        <svg class="ai-input-icon" viewBox="0 0 20 20" fill="none">
+          <path d="M10 0L11.8 6.9L20 10L11.8 13.1L10 20L8.2 13.1L0 10L8.2 6.9L10 0Z" fill="url(#inputGrad)"/>
+          <defs><linearGradient id="inputGrad" x1="0" y1="0" x2="20" y2="20"><stop stop-color="#6366F1"/><stop offset="1" stop-color="#8B5CF6"/></linearGradient></defs>
+        </svg>
+        <input class="ai-input-field" placeholder="告诉 AI 你的偏好，如「我想早点到」" readonly id="mainInput">
+        <button class="ai-voice-btn" onmousedown="startVoice(event)" onmouseup="endVoice(event)" ontouchstart="startVoice(event)" ontouchend="endVoice(event)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        </button>
+        <button class="ai-send-btn" id="mainSendBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat Panel Overlay -->
+  <div class="chat-overlay" id="chatOverlay" onclick="closeChatFromOverlay(event)">
+    <div class="chat-panel" id="chatPanel">
+      <div class="chat-handle"><div class="chat-handle-bar"></div></div>
+      <div class="chat-header">
+        <div class="chat-header-left">
+          <div class="chat-ai-avatar">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 0L9.5 5.5L16 8L9.5 10.5L8 16L6.5 10.5L0 8L6.5 5.5L8 0Z" fill="#fff"/></svg>
+          </div>
+          <span class="chat-title">AI 出行助手</span>
+        </div>
+        <div class="chat-close" onclick="closeChat()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </div>
+      </div>
+      <div class="chat-messages" id="chatMessages">
+        <!-- Welcome message -->
+        <div class="chat-msg ai">
+          <div class="chat-msg-label">AI 出行助手</div>
+          <div class="chat-msg-bubble">
+            你好！我已经分析了天津到西安的所有中转方案。你可以告诉我你的偏好，比如：
+          </div>
+          <div class="chat-suggestions">
+            <span class="chat-suggestion-chip" onclick="sendFromChip('我想早上出发')">早上出发</span>
+            <span class="chat-suggestion-chip" onclick="sendFromChip('换乘不要太赶')">换乘不要太赶</span>
+            <span class="chat-suggestion-chip" onclick="sendFromChip('找最便宜的方案')">最便宜的</span>
+            <span class="chat-suggestion-chip" onclick="sendFromChip('到西安北')">到西安北</span>
+          </div>
+        </div>
+      </div>
+      <div class="chat-input-area">
+        <input class="chat-input-field" id="chatInput" placeholder="描述你的偏好..." onkeypress="handleChatKeypress(event)">
+        <button class="chat-voice-btn" onmousedown="startVoice(event)" onmouseup="endVoice(event)" ontouchstart="startVoice(event)" ontouchend="endVoice(event)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        </button>
+        <button class="chat-send-btn" onclick="sendChatMessage()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+  <!-- Voice Toast -->
+  <div class="voice-toast" id="voiceToast">
+    <div class="voice-wave"><span></span><span></span><span></span><span></span><span></span></div>
+    松开发送，上滑取消
+  </div>
+</div>
+
+<script>
+// ========== State ==========
+let chatOpen = false;
+
+// ========== Chat Panel ==========
+function openChat() {
+  chatOpen = true;
+  document.getElementById('chatOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('chatInput').focus(), 400);
+}
+function closeChat() {
+  chatOpen = false;
+  document.getElementById('chatOverlay').classList.remove('open');
+}
+function closeChatFromOverlay(e) {
+  if (e.target === document.getElementById('chatOverlay')) closeChat();
+}
+
+// ========== Quick Ask ==========
+function quickAsk(text) {
+  openChat();
+  setTimeout(() => {
+    document.getElementById('chatInput').value = text;
+    setTimeout(() => sendChatMessage(), 300);
+  }, 500);
+}
+
+// ========== Send from Chip ==========
+function sendFromChip(text) {
+  document.getElementById('chatInput').value = text;
+  sendChatMessage();
+}
+
+// ========== Chat Logic ==========
+function handleChatKeypress(e) {
+  if (e.key === 'Enter') sendChatMessage();
+}
+
+function sendChatMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  const messages = document.getElementById('chatMessages');
+
+  // User message
+  const userMsg = document.createElement('div');
+  userMsg.className = 'chat-msg user';
+  userMsg.innerHTML = '<div class="chat-msg-label">我</div><div class="chat-msg-bubble">' + escapeHtml(text) + '</div>';
+  messages.appendChild(userMsg);
+  input.value = '';
+
+  // Typing indicator
+  const typingMsg = document.createElement('div');
+  typingMsg.className = 'chat-msg ai';
+  typingMsg.id = 'typingIndicator';
+  typingMsg.innerHTML = '<div class="chat-msg-label">AI 出行助手</div><div class="typing-indicator"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>';
+  messages.appendChild(typingMsg);
+  messages.scrollTop = messages.scrollHeight;
+
+  // Determine intent and brief reply
+  const intent = parseIntent(text);
+
+  setTimeout(() => {
+    const typing = document.getElementById('typingIndicator');
+    if (typing) typing.remove();
+
+    const aiMsg = document.createElement('div');
+    aiMsg.className = 'chat-msg ai';
+    aiMsg.innerHTML = '<div class="chat-msg-label">AI 出行助手</div><div class="chat-msg-bubble">' + intent.reply + '</div>';
+    messages.appendChild(aiMsg);
+    messages.scrollTop = messages.scrollHeight;
+
+    // Auto-close panel and update list
+    if (intent.shouldUpdate) {
+      setTimeout(() => {
+        closeChat();
+        animateListUpdate(intent.newOrder, intent.toastText);
+      }, 800);
+    }
+  }, 1000 + Math.random() * 500);
+}
+
+// ========== Intent Parser ==========
+function parseIntent(text) {
+  const t = text.toLowerCase();
+
+  if (t.includes('早上出发') || t.includes('早出发') || (t.includes('早') && t.includes('出发'))) {
+    return {
+      reply: '好的，我把<strong>早上出发</strong>的方案排到前面，早出发不耽误行程。',
+      shouldUpdate: true,
+      newOrder: ['card4', 'card1', 'card3', 'card5', 'card6', 'card7', 'card8', 'card2'],
+      toastText: '已按「早上出发」重新排序'
+    };
+  }
+  if (t.includes('动卧') || t.includes('过夜')) {
+    return {
+      reply: '收到，<strong>动卧过夜</strong>方案已置顶，躺着睡一觉直达西安，更舒适。',
+      shouldUpdate: true,
+      newOrder: ['card2', 'card1', 'card3', 'card4', 'card5', 'card6', 'card7', 'card8'],
+      toastText: '已按「动卧过夜」重新排序'
+    };
+  }
+  if (t.includes('下午到达') || (t.includes('下午') && t.includes('到'))) {
+    return {
+      reply: '好的，已把<strong>下午到达</strong>的方案排到前面，到西安后还能继续游玩。',
+      shouldUpdate: true,
+      newOrder: ['card3', 'card5', 'card6', 'card7', 'card1', 'card4', 'card8', 'card2'],
+      toastText: '已按「下午到达」重新排序'
+    };
+  }
+  if (t.includes('酒店') || t.includes('省酒店')) {
+    return {
+      reply: '理解，<strong>动卧过夜</strong>方案更舒适，已将该方案排在最前面。',
+      shouldUpdate: true,
+      newOrder: ['card2', 'card4', 'card1', 'card7', 'card8', 'card5', 'card3', 'card6'],
+      toastText: '已按「省酒店钱」重新排序'
+    };
+  }
+  if (t.includes('便宜') || t.includes('价格') || t.includes('省钱') || t.includes('最低')) {
+    return {
+      reply: '收到，已按<strong>价格从低到高</strong>重新排列，最便宜的方案已置顶。',
+      shouldUpdate: true,
+      newOrder: ['card4', 'card7', 'card1', 'card8', 'card5', 'card3', 'card2', 'card6'],
+      toastText: '已按「价格最低」重新排序'
+    };
+  }
+  if (t.includes('换乘') || t.includes('赶') || t.includes('充裕') || t.includes('轻松') || t.includes('宽裕')) {
+    return {
+      reply: '明白，已按<strong>换乘等候时间从长到短</strong>重新排列，最宽裕的排在最前面。',
+      shouldUpdate: true,
+      newOrder: ['card2', 'card4', 'card6', 'card1', 'card7', 'card5', 'card3', 'card8'],
+      toastText: '已按「换乘宽裕」重新排序'
+    };
+  }
+  if (t.includes('耗时') || t.includes('最快') || t.includes('最短')) {
+    return {
+      reply: '好的，已按<strong>总耗时从短到长</strong>重新排列。',
+      shouldUpdate: true,
+      newOrder: ['card1', 'card3', 'card6', 'card4', 'card7', 'card8', 'card5', 'card2'],
+      toastText: '已按「耗时最短」重新排序'
+    };
+  }
+  if (t.includes('晚') || t.includes('不想') || t.includes('不要')) {
+    return {
+      reply: '理解，已把<strong>22:00前到达</strong>的方案排到前面，到达较晚的方案靠后显示。',
+      shouldUpdate: true,
+      newOrder: ['card1', 'card4', 'card3', 'card5', 'card6', 'card7', 'card8', 'card2'],
+      toastText: '已按「不要太晚」重新排序'
+    };
+  }
+  if (t.includes('西安北') || t.includes('到达站')) {
+    return {
+      reply: '所有方案均到达<strong>西安北站</strong>，高铁直达市区，地铁2号线可直达钟楼。',
+      shouldUpdate: true,
+      newOrder: ['card1', 'card2', 'card3', 'card4', 'card5', 'card6', 'card7', 'card8'],
+      toastText: '已筛选「到西安北」方案'
+    };
+  }
+  if (t.includes('白天') || t.includes('早')) {
+    return {
+      reply: '好的，我把<strong>早上出发</strong>的方案排到前面，列表马上更新。',
+      shouldUpdate: true,
+      newOrder: ['card4', 'card1', 'card3', 'card5', 'card6', 'card7', 'card8', 'card2'],
+      toastText: '已按「早上出发」重新排序'
+    };
+  }
+  // Default
+  return {
+    reply: '收到你的偏好，已综合考虑重新排列方案，列表马上更新。',
+    shouldUpdate: true,
+    newOrder: ['card1', 'card2', 'card3', 'card4', 'card5', 'card6', 'card7', 'card8'],
+    toastText: '已根据偏好重新排序'
+  };
+}
+
+// ========== List Update Animation ==========
+function animateListUpdate(newOrder, toastText) {
+  const list = document.getElementById('routeList');
+  const scrollContent = document.getElementById('scrollContent');
+  const loading = document.getElementById('listLoading');
+  const aiCards = newOrder.map(id => document.getElementById(id)).filter(Boolean);
+
+  // Step 1: Fade out AI cards
+  aiCards.forEach(card => card.classList.add('card-fade-out'));
+
+  // Step 2: Show loading overlay
+  setTimeout(() => {
+    loading.classList.add('show');
+  }, 200);
+
+  // Step 3: Reorder DOM and update reason lines
+  setTimeout(() => {
+    const divider = list.querySelector('.section-divider');
+
+    // Move AI cards in new order (before the divider)
+    newOrder.forEach((id, idx) => {
+      const card = document.getElementById(id);
+      if (card && divider) {
+        list.insertBefore(card, divider);
+        // Update rank badge
+        const rank = card.querySelector('.ai-rank');
+        if (rank) rank.textContent = idx + 1;
+        // Update ai-top class
+        card.classList.remove('ai-top');
+        if (idx === 0) card.classList.add('ai-top');
+      }
+    });
+
+    // Remove fade-out, prepare fade-in
+    aiCards.forEach(card => {
+      card.classList.remove('card-fade-out');
+      card.style.opacity = '0';
+    });
+
+    // Hide loading
+    loading.classList.remove('show');
+
+    // Step 4: Staggered fade in
+    setTimeout(() => {
+      newOrder.forEach((id, idx) => {
+        const card = document.getElementById(id);
+        if (card) {
+          setTimeout(() => {
+            card.style.opacity = '';
+            card.classList.add('card-fade-in');
+            // Highlight first card
+            if (idx === 0) {
+              setTimeout(() => card.classList.add('card-highlight-new'), 400);
+            }
+            // Clean up classes
+            setTimeout(() => {
+              card.classList.remove('card-fade-in', 'card-highlight-new');
+            }, 1200);
+          }, idx * 120);
+        }
+      });
+
+      // Scroll to top
+      scrollContent.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // Toast
+      setTimeout(() => showToast(toastText), 300);
+    }, 100);
+  }, 800);
+}
+
+// ========== Toast ==========
+function showToast(text) {
+  const toast = document.getElementById('toast');
+  toast.textContent = text;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2200);
+}
+
+// ========== Utils ==========
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// ========== Voice Input ==========
+let voiceTimer = null;
+function startVoice(e) {
+  e.preventDefault();
+  document.getElementById('voiceToast').classList.add('show');
+}
+function endVoice(e) {
+  e.preventDefault();
+  document.getElementById('voiceToast').classList.remove('show');
+  // Simulate voice recognition result
+  const phrases = ['我想早上出发', '换乘不要太赶', '动卧过夜的方案', '找最便宜的'];
+  const text = phrases[Math.floor(Math.random() * phrases.length)];
+  if (chatOpen) {
+    document.getElementById('chatInput').value = text;
+    sendChatMessage();
+  } else {
+    quickAsk(text);
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>用户购票旅程</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Helvetica Neue", sans-serif;
+  background: linear-gradient(135deg, #F8FAFC 0%, #EEF2FF 50%, #FDF2F8 100%);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+/* Title */
+.page-title {
+  text-align: center;
+  margin-bottom: 44px;
+}
+.page-title h1 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1E293B;
+  letter-spacing: 1px;
+}
+.page-title p {
+  font-size: 16px;
+  color: #64748B;
+  margin-top: 8px;
+}
+
+/* Journey Container */
+.journey {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  max-width: 1800px;
+  width: 100%;
+}
+
+/* Step */
+.step {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+/* Arrow between steps */
+.arrow {
+  width: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 200px;
+  flex-shrink: 0;
+}
+.arrow-line {
+  width: 48px;
+  height: 2px;
+  background: linear-gradient(90deg, #C7D2FE, #6366F1);
+  position: relative;
+}
+.arrow-line::after {
+  content: '';
+  position: absolute;
+  right: -2px;
+  top: -5px;
+  width: 0; height: 0;
+  border-left: 10px solid #6366F1;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+}
+.arrow-text {
+  font-size: 11px;
+  color: #6366F1;
+  margin-top: 8px;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+/* Step Header */
+.step-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.step-number {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, #6366F1, #8B5CF6);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 700;
+}
+.step-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: #1E293B;
+}
+
+/* Step Content Card */
+.step-card {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  overflow: hidden;
+  width: 100%;
+  max-width: 360px;
+}
+
+/* ===== Step 1: User Persona ===== */
+.persona-card {
+  padding: 28px 24px;
+  text-align: center;
+  position: relative;
+}
+.persona-avatar {
+  width: 80px; height: 80px;
+  margin: 0 auto 16px;
+  position: relative;
+}
+.persona-avatar-circle {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FBBF24, #F59E0B);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 38px;
+  box-shadow: 0 4px 16px rgba(245,158,11,0.3);
+}
+.persona-badge {
+  position: absolute;
+  bottom: -2px; right: -2px;
+  background: #10B981;
+  color: #fff;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.persona-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1E293B;
+  margin-bottom: 6px;
+}
+.persona-tags {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.persona-tag {
+  padding: 4px 12px;
+  background: #F1F5F9;
+  border-radius: 20px;
+  font-size: 12px;
+  color: #475569;
+}
+.persona-tag.hl {
+  background: #FEF3C7;
+  color: #92400E;
+}
+
+/* Speech Bubble */
+.speech-bubble {
+  background: linear-gradient(135deg, #EEF2FF, #F5F3FF);
+  border: 1px solid #C7D2FE;
+  border-radius: 16px;
+  padding: 14px 18px;
+  position: relative;
+  text-align: left;
+  margin-top: 12px;
+}
+.speech-bubble::before {
+  content: '';
+  position: absolute;
+  top: -8px; left: 50%;
+  transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid #C7D2FE;
+}
+.speech-bubble::after {
+  content: '';
+  position: absolute;
+  top: -6px; left: 50%;
+  transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-bottom: 7px solid #EEF2FF;
+}
+.speech-bubble p {
+  font-size: 13px;
+  color: #374151;
+  line-height: 1.8;
+}
+.speech-bubble strong {
+  color: #4338CA;
+}
+
+/* ===== Step 2: Direct Train ===== */
+.train-card {
+  position: relative;
+}
+.train-card img {
+  width: 100%;
+  display: block;
+  border-radius: 20px 20px 0 0;
+}
+.train-overlay {
+  padding: 14px 18px;
+  background: #fff;
+}
+.train-problem {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  border-radius: 12px;
+}
+.problem-icon {
+  width: 22px; height: 22px;
+  background: #EF4444;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.problem-text {
+  font-size: 12px;
+  color: #991B1B;
+  line-height: 1.6;
+}
+.problem-text strong {
+  color: #DC2626;
+}
+.train-solution {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 8px 14px;
+  background: linear-gradient(135deg, #EEF2FF, #F5F3FF);
+  border: 1px solid #C7D2FE;
+  border-radius: 12px;
+}
+.solution-icon {
+  font-size: 16px;
+}
+.solution-text {
+  font-size: 12px;
+  color: #4338CA;
+  font-weight: 500;
+}
+
+/* ===== Step 3: AI Analysis ===== */
+.ai-card {
+  padding: 28px 24px;
+  position: relative;
+}
+.ai-brain {
+  width: 64px; height: 64px;
+  margin: 0 auto 18px;
+  background: linear-gradient(135deg, #6366F1, #8B5CF6);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  box-shadow: 0 4px 16px rgba(99,102,241,0.3);
+  position: relative;
+}
+.ai-brain::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 22px;
+  border: 2px dashed rgba(99,102,241,0.3);
+  animation: spin 8s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.ai-section-title {
+  font-size: 13px;
+  color: #6366F1;
+  font-weight: 600;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ai-section-title::before {
+  content: '';
+  width: 3px;
+  height: 14px;
+  background: linear-gradient(135deg, #6366F1, #8B5CF6);
+  border-radius: 2px;
+}
+.ai-input-box {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+}
+.ai-input-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #475569;
+  line-height: 1.8;
+}
+.ai-input-item .label {
+  color: #94A3B8;
+  flex-shrink: 0;
+  font-size: 11px;
+}
+.ai-output-box {
+  background: linear-gradient(135deg, #EEF2FF, #F5F3FF);
+  border: 1px solid #C7D2FE;
+  border-radius: 12px;
+  padding: 14px;
+}
+.ai-output-title {
+  font-size: 12px;
+  color: #6366F1;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.ai-pref-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ai-pref-tag {
+  padding: 6px 14px;
+  background: #fff;
+  border: 1px solid #C7D2FE;
+  border-radius: 20px;
+  font-size: 12px;
+  color: #4338CA;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.ai-pref-tag .icon {
+  font-size: 14px;
+}
+.ai-arrow-down {
+  text-align: center;
+  margin: 14px 0 0;
+  color: #6366F1;
+  font-size: 20px;
+  animation: bounce 1.5s ease infinite;
+}
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(4px); }
+}
+
+/* ===== Step 4: Prototype ===== */
+.proto-card {
+  position: relative;
+}
+.proto-card img {
+  width: 100%;
+  display: block;
+  border-radius: 20px 20px 0 0;
+}
+
+/* Success overlay */
+.proto-success {
+  padding: 12px 18px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.success-icon {
+  width: 26px; height: 26px;
+  background: #10B981;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.success-text {
+  font-size: 12px;
+  color: #065F46;
+  line-height: 1.5;
+}
+.success-text strong { color: #047857; }
+</style>
+</head>
+<body>
+
+<div class="page-title">
+  <h1>AI 智选中转 - 用户购票旅程</h1>
+  <p>天津 → 西安 | 五一假期家庭出行场景</p>
+</div>
+
+<div class="journey">
+  <!-- Step 1: User Persona -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">1</div>
+      <div class="step-title">用户画像</div>
+    </div>
+    <div class="step-card persona-card">
+      <div class="persona-avatar">
+        <div class="persona-avatar-circle">👨‍👩‍👧</div>
+        <div class="persona-badge">家庭出行</div>
+      </div>
+      <div class="persona-name">张先生一家</div>
+      <div class="persona-tags">
+        <span class="persona-tag">家在天津</span>
+        <span class="persona-tag">家庭出游</span>
+        <span class="persona-tag hl">五一出行</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Arrow 1 -->
+  <div class="arrow">
+    <div class="arrow-line"></div>
+    <div class="arrow-text">搜索直达车次</div>
+  </div>
+
+  <!-- Step 2: Direct Train Problem -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">2</div>
+      <div class="step-title">直达方案不理想</div>
+    </div>
+    <div class="step-card train-card">
+      <img src="direct-train.png" alt="直达车次列表" style="border-radius:20px 20px 0 0;">
+      <div class="train-overlay">
+        <div class="train-problem">
+          <div class="problem-icon">!</div>
+          <div class="problem-text">
+            当天直达车次仅有<strong>凌晨/深夜</strong>的普通列车，耗时长、时间差，出行体验不佳
+          </div>
+        </div>
+        <div class="train-solution">
+          <span class="solution-icon">💡</span>
+          <span class="solution-text">用户转向「智能中转」寻找更好方案</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Arrow 2 -->
+  <div class="arrow">
+    <div class="arrow-line"></div>
+    <div class="arrow-text">切换智能中转</div>
+  </div>
+
+  <!-- Step 3: AI Analysis -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">3</div>
+      <div class="step-title">AI 分析偏好</div>
+    </div>
+    <div class="step-card ai-card">
+      <div class="ai-brain">🧠</div>
+
+      <div class="ai-section-title">用户画像</div>
+      <div class="ai-input-box">
+        <div class="ai-input-item"><span class="label">出发地</span> 天津</div>
+        <div class="ai-input-item"><span class="label">目的地</span> 西安</div>
+        <div class="ai-input-item"><span class="label">日　期</span> 5月1日（五一假期首日）</div>
+        <div class="ai-input-item"><span class="label">同　行</span> 家庭出游</div>
+      </div>
+
+      <div class="ai-section-title">分析结果</div>
+      <div class="ai-output-box">
+        <div class="ai-output-title">识别到的出行偏好</div>
+        <div class="ai-pref-tags">
+          <span class="ai-pref-tag"><span class="icon">🕐</span> 中午前到达</span>
+          <span class="ai-pref-tag"><span class="icon">🚄</span> 换乘舒适</span>
+          <span class="ai-pref-tag"><span class="icon">⏱</span> 不要太赶</span>
+          <span class="ai-pref-tag"><span class="icon">🛏</span> 考虑动卧过夜</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Arrow 3 -->
+  <div class="arrow">
+    <div class="arrow-line"></div>
+    <div class="arrow-text">生成推荐方案</div>
+  </div>
+
+  <!-- Step 4: AI Transfer Prototype -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">4</div>
+      <div class="step-title">AI 精选满意方案</div>
+    </div>
+    <div class="step-card proto-card">
+      <img src="prototype-screenshot.png" alt="AI 智选中转方案" style="border-radius:20px 20px 0 0;">
+      <div class="proto-success">
+        <div class="success-icon">✓</div>
+        <div class="success-text">
+          通过 AI 智选，用户快速找到<strong>中午到达</strong>的换乘方案，也发现了<strong>动卧过夜</strong>的舒适选择
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
